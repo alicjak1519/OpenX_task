@@ -21,6 +21,26 @@ class PostsUsersAnalysator():
         nonunique_titles = [title for title, amount in titles_number.items() if amount > 1]
         return nonunique_titles
 
+    def find_neighbours(self):
+        neighbours = []
+        for index, user in users.iterrows():
+            nn_dist = (180 ** 2 + 360 ** 2) ** (1 / 2)
+            for n_index, n_user in users.iterrows():
+                dist = calc_dist(user, n_user)
+                if (dist < nn_dist) and (dist > 0):
+                    nn_dist = dist
+                    nn_user = n_user
+            neighbours.append((user['name'], nn_user['name']))
+        return neighbours
+
+def calc_dist(user, n_user):
+    lat = float(user['address']['geo']['lat'])
+    lng = float(user['address']['geo']['lng'])
+    n_lat = float(n_user['address']['geo']['lat'])
+    n_lng = float(n_user['address']['geo']['lng'])
+    return ((lat - n_lat) ** 2 + (lng - n_lng) ** 2) ** (1 / 2)
+
+
 def merge_post_and_users(posts, users):
     users_to_join = users.set_index('id').add_prefix('user_')
     posts_and_users = posts.join(users_to_join, on=['userId'])
