@@ -16,6 +16,10 @@ class PostsUsersAnalysator():
             string_list.append(f"{user_name} napisał(a) {len(count)} postów")
         return string_list
 
+    def find_nonunique_titles(self):
+        titles_number = self.posts['title'].value_counts()
+        nonunique_titles = [title for title, amount in titles_number.items() if amount > 1]
+        return nonunique_titles
 
 def merge_post_and_users(posts, users):
     users_to_join = users.set_index('id').add_prefix('user_')
