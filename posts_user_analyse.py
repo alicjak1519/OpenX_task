@@ -7,6 +7,14 @@ class PostsUsersAnalysator():
     def __init__(self, posts=None, users=None):
         self.posts = posts
         self.users = users
+        self.posts_and_users = merge_post_and_users(self.posts, self.users)
+
+
+def merge_post_and_users(posts, users):
+    users_to_join = users.set_index('id').add_prefix('user_')
+    posts_and_users = posts.join(users_to_join, on=['userId'])
+    return posts_and_users
+
 
 def download_data(url):
     response = requests.get(url)
