@@ -9,6 +9,13 @@ class PostsUsersAnalysator():
         self.users = users
         self.posts_and_users = merge_post_and_users(self.posts, self.users)
 
+    def create_post_amount_list(self):
+        string_list = []
+        user_posts_amount = self.posts_and_users.groupby('user_name')
+        for user_name, count in user_posts_amount:
+            string_list.append(f"{user_name} napisał(a) {len(count)} postów")
+        return string_list
+
 
 def merge_post_and_users(posts, users):
     users_to_join = users.set_index('id').add_prefix('user_')
