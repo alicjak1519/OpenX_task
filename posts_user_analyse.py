@@ -33,6 +33,7 @@ class PostsUsersAnalysator():
             neighbours.append((user['name'], nn_user['name']))
         return neighbours
 
+
 def calc_dist(user, n_user):
     lat = float(user['address']['geo']['lat'])
     lng = float(user['address']['geo']['lng'])
@@ -60,3 +61,7 @@ if __name__ == "__main__":
     users = download_data(users_url)
 
     analysator = PostsUsersAnalysator(posts, users)
+
+    posts_amount = analysator.create_post_amount_list()
+    nonunique_titles = analysator.find_nonunique_titles()
+    neighbours = analysator.find_neighbours()
