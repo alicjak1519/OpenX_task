@@ -25,14 +25,18 @@ class PostsUsersAnalysator():
     def find_neighbours(self):
         neighbours = []
         for index, user in self.users.iterrows():
-            nn_dist = (180 ** 2 + 360 ** 2) ** (1 / 2)
+            neighbour_dist = self._maximal_geo_dist()
+            neighbour_name = 'No neighbours :( '
             for n_index, n_user in self.users.iterrows():
                 dist = self._calc_dist(user, n_user)
-                if (dist < nn_dist) and (dist > 0):
-                    nn_dist = dist
-                    nn_user = n_user
-            neighbours.append((user['name'], nn_user['name']))
+                if (dist < neighbour_dist) and (n_user['id'] != user['id']):
+                    neighbour_dist = dist
+                    neighbour_name = n_user['name']
+            neighbours.append((user['name'], neighbour_name))
         return neighbours
+
+    def _maximal_geo_dist(self):
+        return (180 ** 2 + 360 ** 2) ** (1 / 2)
 
     def _calc_dist(self, user, n_user):
         lat = float(user['address']['geo']['lat'])
