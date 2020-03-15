@@ -1,4 +1,4 @@
-from posts_users_analyse import PostsUsersAnalysator
+from posts_users_analyse import PostsUsersAnalyser
 from download_data import download_data
 
 if __name__ == "__main__":
@@ -8,9 +8,8 @@ if __name__ == "__main__":
     posts = download_data(posts_url)
     users = download_data(users_url)
 
-    analysator = PostsUsersAnalysator(posts, users)
+    analysator = PostsUsersAnalyser(posts, users)
 
-    posts_amount = analysator.create_posts_number_list()
+    posts_number = analysator.create_post_number_list()
     nonunique_titles = analysator.find_nonunique_titles()
     neighbours = analysator.find_neighbours()
-    print(neighbours)

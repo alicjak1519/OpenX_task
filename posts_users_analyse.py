@@ -1,26 +1,26 @@
-class PostsUsersAnalysator():
+class PostsUsersAnalyser:
 
     def __init__(self, posts=None, users=None):
         self.posts = posts
         self.users = users
 
-    def create_posts_number_list(self):
-        posts_and_users = self._merge_post_and_users(self.posts, self.users)
-        string_list = []
-        user_posts_amount = posts_and_users.groupby('user_name')
-        for user_name, count in user_posts_amount:
-            string_list.append(f"{user_name} napisał(a) {len(count)} postów")
-        return string_list
+    def create_post_number_list(self):
+        user_posts_number = self._calc_posts_number()
+        return [f"{user_name} napisał(a) {number} postów" for (user_name, number) in user_posts_number]
 
-    def _merge_post_and_users(self, posts, users):
-        users_to_join = users.set_index('id').add_prefix('user_')
-        posts_and_users = posts.join(users_to_join, on=['userId'])
-        return posts_and_users
+    def _calc_posts_number(self):
+        users_and_posts = self._merge_users_and_posts()
+        user_posts = users_and_posts.groupby('name')
+        return [(user_name, len(data)) if data.post_title.any() else (user_name, 0) for user_name, data in user_posts]
+
+    def _merge_users_and_posts(self):
+        posts_to_join = self.posts.set_index('userId').add_prefix('post_')
+        users_and_posts = self.users.join(posts_to_join, on=['id'])
+        return users_and_posts
 
     def find_nonunique_titles(self):
         titles_number = self.posts['title'].value_counts()
-        nonunique_titles = [title for title, amount in titles_number.items() if amount > 1]
-        return nonunique_titles
+        return [title for title, amount in titles_number.items() if amount > 1]
 
     def find_neighbours(self):
         neighbours = []
