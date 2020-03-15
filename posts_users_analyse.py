@@ -1,46 +1,36 @@
-class PostsUsersAnalysator():
+from utils import calc_dist
 
-    def __init__(self, posts=None, users=None):
-        self.posts = posts
-        self.users = users
 
-    def create_posts_number_list(self):
-        posts_and_users = self._merge_post_and_users(self.posts, self.users)
-        string_list = []
-        user_posts_amount = posts_and_users.groupby('user_name')
-        for user_name, count in user_posts_amount:
-            string_list.append(f"{user_name} napisał(a) {len(count)} postów")
-        return string_list
+class PostsUsersAnalyser:
 
-    def _merge_post_and_users(self, posts, users):
-        users_to_join = users.set_index('id').add_prefix('user_')
-        posts_and_users = posts.join(users_to_join, on=['userId'])
-        return posts_and_users
+    def create_post_number_list(self, posts, users):
+        user_posts_number = self._calc_posts_number(posts, users)
+        return [f"{user_name} napisał(a) {number} postów" for (user_name, number) in user_posts_number]
 
-    def find_nonunique_titles(self):
-        titles_number = self.posts['title'].value_counts()
-        nonunique_titles = [title for title, amount in titles_number.items() if amount > 1]
-        return nonunique_titles
+    def _calc_posts_number(self, posts, users):
+        users_and_posts = self._merge_users_and_posts(posts, users)
+        user_posts = users_and_posts.groupby('name')
+        return [(user_name, len(data)) if data.post_title.any() else (user_name, 0) for user_name, data in user_posts]
 
-    def find_neighbours(self):
+    def _merge_users_and_posts(self, posts, users):
+        posts_to_join = posts.set_index('userId').add_prefix('post_')
+        users_and_posts = users.join(posts_to_join, on=['id'])
+        return users_and_posts
+
+    def find_nonunique_titles(self, posts):
+        titles_number = posts['title'].value_counts()
+        return [title for title, amount in titles_number.items() if amount > 1]
+
+    def find_neighbours(self, users):
         neighbours = []
-        for index, user in self.users.iterrows():
-            neighbour_dist = self._maximal_geo_dist()
+        maximal_geo_dist = (180 ** 2 + 360 ** 2) ** (1 / 2)
+        for index, user in users.iterrows():
+            neighbour_dist = maximal_geo_dist
             neighbour_name = 'No neighbours :( '
-            for n_index, n_user in self.users.iterrows():
-                dist = self._calc_dist(user, n_user)
+            for n_index, n_user in users.iterrows():
+                dist = calc_dist(user, n_user)
                 if (dist < neighbour_dist) and (n_user['id'] != user['id']):
                     neighbour_dist = dist
                     neighbour_name = n_user['name']
             neighbours.append((user['name'], neighbour_name))
         return neighbours
-
-    def _maximal_geo_dist(self):
-        return (180 ** 2 + 360 ** 2) ** (1 / 2)
-
-    def _calc_dist(self, user, n_user):
-        lat = float(user['address']['geo']['lat'])
-        lng = float(user['address']['geo']['lng'])
-        n_lat = float(n_user['address']['geo']['lat'])
-        n_lng = float(n_user['address']['geo']['lng'])
-        return ((lat - n_lat) ** 2 + (lng - n_lng) ** 2) ** (1 / 2)
