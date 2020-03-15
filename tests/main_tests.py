@@ -30,9 +30,24 @@ class TestPostsUsersAnalysator(unittest.TestCase):
         test_analyser = PostsUsersAnalyser(test_posts_nonunique_title, test_users)
         self.assertEqual(test_analyser.find_nonunique_titles(), ["qui est esse"])
 
-    def test_len_find_neighbour(self):
+    def test_len_find_neighbours(self):
         test_analyser = PostsUsersAnalyser(test_posts, test_users)
         self.assertEqual(len(test_analyser.find_neighbours()), len(test_users))
+
+    def test_value_find_neighbours(self):
+        test_users_neighbours = pd.read_json('test_users_neighbours.json')
+        test_analyser = PostsUsersAnalyser(test_posts, test_users_neighbours)
+        self.assertEqual(test_analyser.find_neighbours()[0],
+                         (test_users_neighbours.iloc[0]['name'], test_users_neighbours.iloc[1]['name']))
+
+    def test_maximal_geo_dist(self):
+        test_analyser = PostsUsersAnalyser(test_posts, test_users)
+        self.assertEqual(test_analyser._maximal_geo_dist(), (180 ** 2 + 360 ** 2) ** (1 / 2))
+
+    def test_calc_dist(self):
+        test_users_neighbours = pd.read_json('test_users_neighbours.json')
+        test_analyser = PostsUsersAnalyser(test_posts, test_users_neighbours)
+        self.assertEqual(test_analyser._calc_dist(test_users_neighbours.iloc[0], test_users_neighbours.iloc[1]), 5)
 
 
 if __name__ == '__main__':
