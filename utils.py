@@ -7,10 +7,6 @@ def download_data(url):
     return pd.read_json(response.text)
 
 
-def maximal_geo_dist():
-    return (180 ** 2 + 360 ** 2) ** (1 / 2)
-
-
 def calc_dist(user, n_user):
     lat = float(user['address']['geo']['lat'])
     lng = float(user['address']['geo']['lng'])

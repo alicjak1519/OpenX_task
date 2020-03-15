@@ -1,4 +1,3 @@
-from utils import maximal_geo_dist
 from utils import calc_dist
 
 
@@ -24,8 +23,9 @@ class PostsUsersAnalyser:
 
     def find_neighbours(self, users):
         neighbours = []
+        maximal_geo_dist = (180 ** 2 + 360 ** 2) ** (1 / 2)
         for index, user in users.iterrows():
-            neighbour_dist = maximal_geo_dist()
+            neighbour_dist = maximal_geo_dist
             neighbour_name = 'No neighbours :( '
             for n_index, n_user in users.iterrows():
                 dist = calc_dist(user, n_user)
